@@ -18,7 +18,8 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Beat Maker")
 label_font = pygame.font.Font('Roboto-Bold.ttf', 32)
-beats = 6
+beats = 14
+bpm = 5
 instruments = 6
 box_w = (WIDTH-LEFT_BOX) // beats
 box_h = (HEIGHT-BOTTOM_BOX) // instruments
@@ -31,7 +32,7 @@ playing = True
 active_beat = 0
 active_length = 0
 beat_changed = False
-beat_length = fps // beats
+beat_length = fps // bpm
 mixer.set_num_channels(3*instruments)
 
 def draw_grid():
@@ -107,11 +108,26 @@ def play_notes():
         if active_boxes[i][active_beat]:
             inst_sounds[i].play()
 
+def draw_settings():
+    bpm_text = label_font.render('BPM', True, WHITE)
+    screen.blit(bpm_text, (100, HEIGHT - BOTTOM_BOX + 40))
+    bpm_up_text = label_font.render('+', True, WHITE)
+    screen.blit(bpm_up_text, (243, HEIGHT - BOTTOM_BOX + 82))
+    bpm_down_text = label_font.render('-', True, WHITE)
+    screen.blit(bpm_down_text, (120, HEIGHT - BOTTOM_BOX + 82))
+    bpm_counter_text = label_font.render(str(bpm), True, WHITE)
+    screen.blit(bpm_counter_text, (180, HEIGHT - BOTTOM_BOX + 82))
+    bpm_box = pygame.draw.rect(screen, BLACK, [98, HEIGHT - BOTTOM_BOX + 73, 179, 54], 2,5)
+    bpm_down = pygame.draw.rect(screen, GREEN, [100, HEIGHT - BOTTOM_BOX + 75, 50, 50], 1, border_top_left_radius=5, border_bottom_left_radius=5)
+    bpm_counter = pygame.draw.rect(screen, GREEN, [150, HEIGHT - BOTTOM_BOX + 75, 75, 50], 1)
+    bpm_up = pygame.draw.rect(screen, GREEN, [225, HEIGHT - BOTTOM_BOX + 75, 50, 50], 1, border_bottom_right_radius=5, border_top_right_radius=5)
+
 if __name__ == '__main__':
     while True:
         clock.tick(fps)
         screen.fill(BLACK)
         boxes = draw_grid()
+        draw_settings()
         if beat_changed:
             play_notes()
             beat_changed = False
@@ -128,7 +144,8 @@ if __name__ == '__main__':
                 sys.exit()
             elif event.type == MOUSEBUTTONUP:
                 if event.button == 1:
-                    if event.pos[0] > LEFT_BOX and event.pos[1] < HEIGHT-BOTTOM_BOX:
+                    if event.pos[0] > LEFT_BOX and \
+                        event.pos[1] < HEIGHT-BOTTOM_BOX:
                         col = (event.pos[0] - LEFT_BOX) // box_w
                         row = event.pos[1] // box_h
                         active_boxes[row][col] = not active_boxes[row][col]
